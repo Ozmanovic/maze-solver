@@ -46,7 +46,7 @@ class Tests(unittest.TestCase):
         num_rows = 4
         m = Maze(0, 0, num_rows, num_cols, 10, 10)
         
-        # Call the private method using name mangling
+        
         m._Maze__break_entrance_and_exit()
 
         entrance_cell = m._cells[0][0]
@@ -70,12 +70,12 @@ class Tests(unittest.TestCase):
 
     def test_reset_cells_visited(self):
         m = Maze(0, 0, 3, 3, 10, 10)
-        # Mark all as visited
+        
         for col in m._cells:
             for cell in col:
                 cell.visited = True
 
-        m._Maze__reset_cells_visited()  # Access the "private" method
+        m._Maze__reset_cells_visited()  
 
         for col in m._cells:
             for cell in col:
@@ -96,7 +96,7 @@ class Tests(unittest.TestCase):
         cell1 = m._cells[0][0]
         cell2 = m._cells[1][0]
 
-        # Either direction is valid depending on recursion
+        
         self.assertTrue(
             (not cell1.has_right_wall and not cell2.has_left_wall) or
             (not cell2.has_right_wall and not cell1.has_left_wall)

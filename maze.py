@@ -61,7 +61,7 @@ class Maze():
     def animate(self):
         if self.__win:
             self.__win.redraw()
-            time.sleep(0.1)
+            time.sleep(0.02)
 
 
     def __break_entrance_and_exit(self):
@@ -97,32 +97,37 @@ class Maze():
 
         if not need_visit:
             self.__draw_cell(i, j)
-
+        
             return
         else:
-            random_i, random_j, neighbour = random.choice(need_visit)
-            if random_i == i + 1:  # right
-                current.has_right_wall = False
-                neighbour.has_left_wall = False
-                self.__draw_cell(i, j) 
-                self.__draw_cell(random_i, random_j)
-            elif random_i == i - 1:  # left
-                current.has_left_wall = False
-                neighbour.has_right_wall = False
-                self.__draw_cell(i, j) 
-                self.__draw_cell(random_i, random_j)
-            elif random_j == j + 1:  # down
-                current.has_bottom_wall = False
-                neighbour.has_top_wall = False
-                self.__draw_cell(i, j) 
-                self.__draw_cell(random_i, random_j)
-            elif random_j == j - 1:  # up
-                current.has_top_wall = False
-                neighbour.has_bottom_wall = False
-                self.__draw_cell(i, j) 
-                self.__draw_cell(random_i, random_j)
-                
-            self.__break_walls_r(random_i, random_j)
+            random.shuffle(need_visit)
+
+            for random_i, random_j, neighbour in need_visit:
+                if not neighbour.visited:
+                    
+
+                    if random_i == i + 1:  # right
+                        current.has_right_wall = False
+                        neighbour.has_left_wall = False
+                        self.__draw_cell(i, j) 
+                        self.__draw_cell(random_i, random_j)
+                    elif random_i == i - 1:  # left
+                        current.has_left_wall = False
+                        neighbour.has_right_wall = False
+                        self.__draw_cell(i, j) 
+                        self.__draw_cell(random_i, random_j)
+                    elif random_j == j + 1:  # down
+                        current.has_bottom_wall = False
+                        neighbour.has_top_wall = False
+                        self.__draw_cell(i, j) 
+                        self.__draw_cell(random_i, random_j)
+                    elif random_j == j - 1:  # up
+                        current.has_top_wall = False
+                        neighbour.has_bottom_wall = False
+                        self.__draw_cell(i, j) 
+                        self.__draw_cell(random_i, random_j)
+                        
+                    self.__break_walls_r(random_i, random_j)
                     
     def __reset_cells_visited(self):
         for i in range(self.num_cols):
@@ -130,14 +135,17 @@ class Maze():
                 self._cells[i][j].visited = False
     
     def _solve(self, i, j):
+        print(f"Exploring cell ({i},{j})")
         self.animate()
+        
         # Mark current cell as visited
         self._cells[i][j].visited = True
         
         # Check if we've reached the exit
-        last_col = len(self._cells) - 1
-        last_row = len(self._cells[0]) - 1
+        last_col = self.num_cols - 1
+        last_row = self.num_rows - 1
         if i == last_col and j == last_row:
+            print(f"Found exit at ({i},{j})!")
             return True
         
         # Try right
@@ -145,46 +153,81 @@ class Maze():
             not self._cells[i+1][j].visited and 
             not self._cells[i][j].has_right_wall):
             
+            print(f"Moving right from ({i},{j}) to ({i+1},{j})")
             self._cells[i][j].draw_move(self._cells[i+1][j])
+            self.animate()
+            
             if self._solve(i+1, j):
                 return True
+            
+            # Backtrack
+            print(f"Backtracking from right ({i+1},{j}) to ({i},{j})")
             self._cells[i][j].draw_move(self._cells[i+1][j], undo=True)
-        
-        # Try left
-        if (i - 1 >= 0 and 
-            not self._cells[i-1][j].visited and 
-            not self._cells[i][j].has_left_wall):
-            
-            self._cells[i][j].draw_move(self._cells[i-1][j])
-            if self._solve(i-1, j):
-                return True
-            self._cells[i][j].draw_move(self._cells[i-1][j], undo=True)
-        
-        # Try up
-        if (j - 1 >= 0 and 
-            not self._cells[i][j-1].visited and 
-            not self._cells[i][j].has_top_wall):
-            
-            self._cells[i][j].draw_move(self._cells[i][j-1])
-            if self._solve(i, j-1):
-                return True
-            self._cells[i][j].draw_move(self._cells[i][j-1], undo=True)
+            self.animate()
         
         # Try down
         if (j + 1 < self.num_rows and 
             not self._cells[i][j+1].visited and 
             not self._cells[i][j].has_bottom_wall):
             
+            print(f"Moving down from ({i},{j}) to ({i},{j+1})")
             self._cells[i][j].draw_move(self._cells[i][j+1])
+            self.animate()
+            
             if self._solve(i, j+1):
                 return True
+            
+            # Backtrack
+            print(f"Backtracking from down ({i},{j+1}) to ({i},{j})")
             self._cells[i][j].draw_move(self._cells[i][j+1], undo=True)
+            self.animate()
         
+        # Try left
+        if (i - 1 >= 0 and 
+            not self._cells[i-1][j].visited and 
+            not self._cells[i][j].has_left_wall):
+            
+            print(f"Moving left from ({i},{j}) to ({i-1},{j})")
+            self._cells[i][j].draw_move(self._cells[i-1][j])
+            self.animate()
+            
+            if self._solve(i-1, j):
+                return True
+            
+            # Backtrack
+            print(f"Backtracking from left ({i-1},{j}) to ({i},{j})")
+            self._cells[i][j].draw_move(self._cells[i-1][j], undo=True)
+            self.animate()
+        
+        # Try up
+        if (j - 1 >= 0 and 
+            not self._cells[i][j-1].visited and 
+            not self._cells[i][j].has_top_wall):
+            
+            print(f"Moving up from ({i},{j}) to ({i},{j-1})")
+            self._cells[i][j].draw_move(self._cells[i][j-1])
+            self.animate()
+            
+            if self._solve(i, j-1):
+                return True
+            
+            # Backtrack
+            print(f"Backtracking from up ({i},{j-1}) to ({i},{j})")
+            self._cells[i][j].draw_move(self._cells[i][j-1], undo=True)
+            self.animate()
+        
+        print(f"No path found from ({i},{j}), backtracking")
+        # If we get here, no path was found
         return False
                 
     def solve(self):
+        print("\n--- STARTING MAZE SOLVER ---")
+        print(f"Maze dimensions: {self.num_cols}x{self.num_rows}")
+        print(f"Exit location: ({self.num_cols-1},{self.num_rows-1})")
         self.__reset_cells_visited()
-        return self._solve(0,0)
+        result = self._solve(0, 0)
+        print(f"\nMaze solved: {result}")
+        return result
 
 
 
