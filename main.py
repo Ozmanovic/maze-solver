@@ -12,10 +12,12 @@ def main():
 
     # Draw cells
     # Draw cells
-    Maze(10, 10, 10, 10, 50, 50, win)
+    maze = Maze(10, 10, 10, 10, 50, 50, win)
+    maze.solve()
 
 
     win.wait_for_close()
 
 
-main()
+if __name__ == "__main__":
+    main()
