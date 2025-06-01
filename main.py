@@ -1,28 +1,12 @@
-from graphics import Window, Point, Line
-from cell import Cell
-from maze import Maze
-
-def main():
-    num_rows = 20
-    num_cols = 24
-    margin = 50
-    screen_x = 1280
-    screen_y = 720
-    cell_size_x = (screen_x - 2 * margin) / num_cols
-    cell_size_y = (screen_y - 2 * margin) / num_rows
-    win = Window(screen_x, screen_y)
-
-       
-    
-    maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, win)
-    
-    # Solve the maze
-    maze.solve()
-
-    win.wait_for_close()
-
-
-
+from maze_app import main
+import argparse
 
 if __name__ == "__main__":
-    main()
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Maze Generator & Solver')
+    parser.add_argument('--width', type=int, default=1280, help='Window width (default: 1280)')
+    parser.add_argument('--height', type=int, default=720, help='Window height (default: 720)')
+    args = parser.parse_args()
+
+    # Run the application with the specified window size
+    main(width=args.width, height=args.height)
